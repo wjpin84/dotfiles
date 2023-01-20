@@ -19,6 +19,10 @@ astronvim_reload_user:
 
 astronvim: astronvim_install astronvim_reload_user
 
-init: nvim_clean astronvim
+scripts:
+	mkdir -p ~/.local/bin
+	cp -r scripts/bin/* ~/.local/bin/ -f
+
+init: nvim_clean astronvim scripts
 
 clean: nvim_clean astronvim_clean

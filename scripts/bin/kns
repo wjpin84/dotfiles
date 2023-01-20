@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Helper to change the namespace in kubernetes configuration.  Uses fuzzy search
+# to allow a searchable list of namespaces.
+#
+# Depends on fzf, awk, and grep, kubectl
+
+namespace=${1:-""}
+namespaces=$(kubectl get ns | grep -v NAME | awk -F ' ' '{print $1}')
+
+if [[ -n "$namespace" && $namespace == *"$namespaces"* ]]; then
+  kubectl config set-context --current --namespace $namespace
+  exit 0
+fi
+
+namespace=$(echo $namespaces | tr ' ' '\n' | fzf)
+if [ -z $namespace ]; then
+  echo "Failed to set the namespace"
+  exit 1
+fi
+
+kubectl config set-context --current --namespace $namespace
+

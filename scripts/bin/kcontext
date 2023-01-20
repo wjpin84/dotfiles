@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Helper to change the context in kubernetes configuration.  Uses
+# fuxzzy to allow a searchable list of contexts.
+#
+# Depends on fzf, awk, grep, and kubectl
+
+context=${1:-""}
+contexts=$(kubectl config get-contexts | grep -v NAME | awk -F ' ' '{print $2}' | uniq -u)
+
+if [[ -n "$context" && $context == *" $contexts "* ]]; then
+  kubectl config use-context $context
+  exit 0
+fi
+
+context=$(echo $contexts | tr ' ' '\n' | fzf)
+if [ -z $context ]; then
+  echo "Failed to set the kubernetes context"
+  exit 1
+fi
+
+kubectl config use-context $context
